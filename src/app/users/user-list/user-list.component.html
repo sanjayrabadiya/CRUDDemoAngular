@@ -107,10 +107,7 @@
             <select id="language" class="form-control" formControlName="language" style="width:200px" *ngIf="user.checkEdit" [(ngModel)]="user.language" (change)="onLanguageChange(user)">
               <option *ngFor="let language of languageList" [value]="language">{{ language }}</option>
               <option value="Other">Other</option>
-            </select>
-            
-
-             
+            </select>  
           </td>
           <td>
             <span *ngIf="!user.checkEdit">{{ user.address }}</span>
