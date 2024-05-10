@@ -1,0 +1,86 @@
+<div class="container">
+  <div class="d-flex justify-content-between py-3">
+    <h4>Edit User {{user?.name}}</h4>    
+  </div>
+  <form [formGroup]="userForm">
+    <div class="row">
+      
+      <div class="form-group mb-3 col-md-4">
+        <label for="image">Photo</label>           
+        <input type="file" class="form-control" (change)="avatarImage($event)" name="image" accept="image/*">
+        <span class="text-danger" *ngIf="userForm.get('avatar')?.hasError('required')">
+          Upload Profile photo
+        </span>
+      </div>    
+      <div class="form-group mb-3 col-md-4">
+        <label for="name">Name</label>
+        <input type="text" formControlName="name" class="form-control" name="name"   minlength="4">
+        <span class="text-danger" *ngIf="userForm.get('name')?.hasError('required')">
+          Enter your Name.
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="userName">UserName</label>
+        <input type="text" formControlName="userName" class="form-control" name="userName">
+        <span class="text-danger" *ngIf="userForm.get('userName')?.hasError('required')">
+          Enter your User Name.
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="email">Email</label>
+        <input type="email" formControlName="email" class="form-control" name="email">
+        <span class="text-danger" *ngIf="userForm.get('email')?.hasError('required')">
+          Enter your Email.
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="phoneNo">Phone Number</label>
+        <input type="text" formControlName="phoneNo" class="form-control" name="phoneNo">
+        <span class="text-danger" *ngIf="userForm.get('phoneNo')?.hasError('required')">
+          Enter your Phone Number.
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="gender">Gender</label>
+        <div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="gender" formControlName="gender" id="male" value="male">
+            <label class="form-check-label" for="male">Male</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="gender" formControlName="gender" id="female" value="female">
+            <label class="form-check-label" for="female">Female</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="gender" formControlName="gender" id="other" value="other">
+            <label class="form-check-label" for="other">other</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="birthDate">Birth Date</label>
+        <input type="date" formControlName="birthDate" class="form-control" name="birthDate">
+        <span class="text-danger" *ngIf="userForm.get('birthDate')?.hasError('required')">
+          Select birth date
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="language">Language</label>
+        <input type="text" formControlName="language" class="form-control" name="language">
+        <span class="text-danger" *ngIf="userForm.get('language')?.hasError('required')">
+          Enter your Language.
+        </span>
+      </div>
+      <div class="form-group mb-3 col-md-4">
+        <label for="address">Address</label>
+        <textarea formControlName="address" class="form-control" name="address"></textarea>
+        <span class="text-danger" *ngIf="userForm.get('address')?.hasError('required')">
+          Enter your Address.
+        </span>
+      </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary" (click)="saveUser()">Save</button>
+    <button type="button" class="btn btn-danger mx-2" (click)="cancelUser()">cancel</button>
+  </form>
+</div>
