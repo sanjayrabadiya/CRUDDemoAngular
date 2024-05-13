@@ -4,7 +4,6 @@ export class User {
   name?: string;
   userName?: string;
   email?: string;
-  password?: string;
   gender?: string;
   avatar?: string;
   birthDate?: string;

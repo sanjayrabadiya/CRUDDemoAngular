@@ -6,7 +6,7 @@ import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
-
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-list',
@@ -46,7 +46,8 @@ export class UserListComponent implements OnInit {
     private userService: UserService, 
     private router: Router,
     private toastr: ToastrService,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private http: HttpClient
   ) {
     this.userForm = this.fb.group({    
       avatar: ['', Validators.required],  
@@ -236,8 +237,16 @@ export class UserListComponent implements OnInit {
       avatar: [''],
     });
   }  
-  downloadAvatar(user: any){
-    console.log(user);
+  downloadAvatar(avatar: string) {
+    const imageUrl = avatar;
+    this.http.get(imageUrl, { responseType: 'blob' }).subscribe(response => {
+      const blob = new Blob([response], { type: 'image/*' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'avatar_image.png';
+      link.click();
+      window.URL.revokeObjectURL(link.href);
+    });
   }
   // Add row in table
   addRow() {
