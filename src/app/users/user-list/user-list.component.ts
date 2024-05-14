@@ -19,14 +19,18 @@ export class UserListComponent implements OnInit {
   userForm: FormGroup;
   users: User[] = [];
   imageURL: string | ArrayBuffer | null = null;  
-  fileName: string | null = null;
-  languageList: string[] = ['English','Gujarati','Marathi'];
+  fileName: string = "";
+  size:number = 0;
+  languageList: string[] = ['English','Gujarati','Marathi']; 
 
   sortBy: string = 'id'; 
   sortDirection: number = 1; 
-
   newUser: User = {
-    avatar: '',
+    avatar: {
+      imageUrl: '',
+      fileName: '',
+      size: 0
+    },
     id: 0,
     name: '',
     userName: '',
@@ -50,7 +54,11 @@ export class UserListComponent implements OnInit {
     private http: HttpClient
   ) {
     this.userForm = this.fb.group({    
-      avatar: ['', Validators.required],  
+      avatar: this.fb.group({
+        imageUrl: [''],
+        fileName: [''],
+        size: [0]
+      }),  
       name: ['', Validators.required],
       userName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -138,10 +146,39 @@ export class UserListComponent implements OnInit {
       console.error('Invalid user ID:', userId);
     }    
   }
+  // Image Convert to base64Image  
+  AddavatarImage(event: any) {    
+    const file: File = event.target.files[0];  
+    if (file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);  
+      reader.onload = () => {
+        const base64Image = reader.result as string;
+        this.newUser.avatar = {
+          imageUrl: base64Image,
+          fileName: file.name,
+          size: file.size
+        };
+      };
+    }
+  }
+  //download 
+  downloadAvatar(user: any) {
+    const link = document.createElement('a');
+    link.href = user.avatar.imageUrl;
+    link.download = user.avatar.fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
   // User Edit Code
-  startEdit(user: any) {  
-    user.checkEdit = true;
-    user.editAvatar = this.imageURL || user.avatar || '../../../assets/images/userdammy.jpg',
+  startEdit(user: any) { 
+    user.checkEdit = true;    
+    user.editAvatar = {
+      imageUrl: user.avatar.imageUrl || '../../../assets/images/userdammy.jpg',
+      fileName: user.avatar.fileName || 'default.jpg',
+      size: user.avatar.size || 0
+    }
     user.editName = user.name; 
     user.editUserName = user.userName; 
     user.editEmail = user.email;
@@ -153,9 +190,9 @@ export class UserListComponent implements OnInit {
     user.editAddress = user.address;        
   }
   // User Edit to save Code
-  saveEdit(user: any) {
+  saveEdit(user: any) {    
     const updatedUser = {
-      avatar: this.imageURL || user.avatar || '../../../assets/images/userdammy.jpg',
+      avatar:  this.newUser.avatar,
       name: user.name, 
       userName: user.userName, 
       email: user.email, 
@@ -201,60 +238,24 @@ export class UserListComponent implements OnInit {
       this.newUser.age = this.calculateAge(this.newUser.birthDate);
     }
   } 
-  // Image Convert to base64Image
-  avatarImage(event: any) {      
-    const file: File = event.target.files[0];  
-    if (file) {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64Image = reader.result as string;
-        this.imageURL = base64Image; 
-        this.fileName = file.name;        
-        this.userForm.patchValue({
-          avatar: reader.result
-        });
-      };
-    }
-  }  
-  avatarImageTwo(event: any) {    
-    const file: File = event.target.files[0];  
-    if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);  
-      reader.onload = () => {
-        const base64Image = reader.result as string;
-        this.imageURL = base64Image;   
-        this.fileName = file.name;       
-        this.newUser.avatar = base64Image;
-      };
-    }
-  }
+
   // change image
   removeAvatar(){
-    this.imageURL = "";
-    this.userForm.patchValue({
-      avatar: [''],
-    });
-  }  
-  downloadAvatar(avatar: string) {
-    const imageUrl = avatar;
-    this.http.get(imageUrl, { responseType: 'blob' }).subscribe(response => {
-      const blob = new Blob([response], { type: 'image/*' });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = 'avatar_image.png';
-      link.click();
-      window.URL.revokeObjectURL(link.href);
-    });
-  }
+    const emptyAvatar = { imageUrl: '', fileName: '', size: 0 };
+    this.userForm.patchValue({ avatar: emptyAvatar });
+    //this.imageURL = '';
+  } 
   // Add row in table
   addRow() {
     if (this.users && this.users.length > 0) {
       const lastUserId = this.users[this.users.length - 1].id;
       const newId = lastUserId ? lastUserId + 1 : 1;
       this.newUser = {
-        avatar: '',
+        avatar: {
+          imageUrl: '',
+          fileName: '',
+          size: 0
+        },
         id: newId,
         name: '',
         userName: '',
@@ -269,7 +270,11 @@ export class UserListComponent implements OnInit {
       };
     } else {
       this.newUser = {
-      avatar: '',
+      avatar: {
+        imageUrl: '',
+        fileName: '',
+        size: 0
+      },
       id: 1,
       name: '',
       userName: '',
