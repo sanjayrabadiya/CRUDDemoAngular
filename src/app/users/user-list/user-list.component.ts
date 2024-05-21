@@ -147,14 +147,14 @@ export class UserListComponent implements OnInit {
     }    
   }
   // Image Convert to base64Image  
-  AddavatarImage(event: any) {    
+  AddavatarImage(event: any, user: any) {    
     const file: File = event.target.files[0];  
     if (file) {
       const reader = new FileReader();
       reader.readAsDataURL(file);  
       reader.onload = () => {
         const base64Image = reader.result as string;
-        this.newUser.avatar = {
+        user.avatar = {
           imageUrl: base64Image,
           fileName: file.name,
           size: file.size
@@ -192,7 +192,7 @@ export class UserListComponent implements OnInit {
   // User Edit to save Code
   saveEdit(user: any) {    
     const updatedUser = {
-      avatar:  this.newUser.avatar,
+      avatar: user.avatar,
       name: user.name, 
       userName: user.userName, 
       email: user.email, 
