@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UserEditComponent } from './users/user-edit/user-edit.component';
 import { UserListComponent } from './users/user-list/user-list.component';
-import { UserCreateComponent } from './users/user-create/user-create.component';
+import { UserAddEditComponent } from './users/user-add-edit/user-add-edit.component';
 
 
 const routes: Routes = [  
   { path: 'users', component: UserListComponent },  
-  { path: 'users/add', component: UserCreateComponent },  
-  { path: 'users/edit/:id', component: UserEditComponent },
+  { path: 'users/add', component: UserAddEditComponent },  
+  { path: 'users/edit/:id', component: UserAddEditComponent },
   { path: '', redirectTo: '/users', pathMatch: 'full' },
   { path: '**', redirectTo: '/users' }
 ];

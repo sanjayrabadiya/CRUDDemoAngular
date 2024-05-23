@@ -6,7 +6,6 @@ import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
-import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-list',
@@ -51,7 +50,6 @@ export class UserListComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private modalService: NgbModal,
-    private http: HttpClient
   ) {
     this.userForm = this.fb.group({    
       avatar: this.fb.group({
@@ -211,7 +209,7 @@ export class UserListComponent implements OnInit {
         this.router.navigate(['/users']);
       },
       (error) => {
-        this.toastr.error('Failed to update users:', error);
+        this.toastr.error('Failed to update users:');
       }
     );
   }
@@ -319,7 +317,7 @@ export class UserListComponent implements OnInit {
     this.router.navigate(['/users/edit', userId]);
   }
   // Add user in other page with route 
-  AddUser(){
-    this.router.navigate(['users/add']);
+  addUser(){
+    this.router.navigate(['users/add'],{ queryParams: { mode: 'add' } });
   }   
 }
