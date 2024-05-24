@@ -71,7 +71,7 @@
       </div>
       <div class="form-group mb-3 col-md-4">
         <label for="language">Language</label>
-        <select id="language" class="form-control" formControlName="language" [(ngModel)]="user.language" (change)="onLanguageChange(user)">
+        <select id="language" class="form-control" formControlName="language" (change)="onLanguageChange()">
           <option value="" selected disabled hidden>Select Language</option>
           <option *ngFor="let language of languageList" [value]="language">{{ language }}</option>
           <option value="Other">Other</option>

@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -6,11 +6,13 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './select-language.component.html',
 })
 export class SelectLanguageComponent {
-  newLanguage: string = '';
+  @ViewChild('newLanguageInput') newLanguageInput!: ElementRef;
+  //newLanguage: string = '';
   constructor(public activeModal: NgbActiveModal) { }
   addLanguage() {
-    if (this.newLanguage.trim() !== '') {
-      this.activeModal.close(this.newLanguage.trim());
-    } 
+    const newLanguage = this.newLanguageInput.nativeElement.value.trim();
+    if (newLanguage !== '') {
+      this.activeModal.close(newLanguage);
+    }
   }
 }

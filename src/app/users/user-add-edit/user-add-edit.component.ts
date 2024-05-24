@@ -160,23 +160,24 @@ export class UserAddEditComponent implements OnInit {
     return age;
   }
   // change Language code
-  onLanguageChange(user: any) {
-    if (user.language === 'Other') {
-      this.openAddLanguageModal(user);
+  onLanguageChange() {
+    const languageControl = this.userForm.get('language');
+    if (languageControl && languageControl.value === 'Other') {
+      this.openAddLanguageModal();
     }
   }
-  openAddLanguageModal(user: any) {
+  openAddLanguageModal() {
     const modalRef = this.modalService.open(SelectLanguageComponent, { centered: true });  
     modalRef.result.then((newLanguage: string) => {
       if (newLanguage && !this.languageList.includes(newLanguage)) {
         this.languageList.push(newLanguage);
         const languageControl = this.userForm.get('language');
         if (languageControl) {
-          languageControl.setValue(newLanguage); // Update form value
+          languageControl.setValue(newLanguage); 
         }
       }
     }).catch((reason) => {
-      console.log('Modal dismissed with reason:', reason);
+      this.toastr.error('Modal dismissed with reason:', reason);
     });
   }  
 }
