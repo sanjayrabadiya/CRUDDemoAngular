@@ -6,6 +6,7 @@ import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-user-list',
@@ -130,16 +131,41 @@ export class UserListComponent implements OnInit {
   // User Delete Code
   deleteUser(userId: number | undefined) {
     if (userId !== undefined) {
-      this.userService.deleteUser(userId).subscribe(
-        () => {
-          this.users = this.users.filter(user => user.id !== userId);
-          this.filteredList = this.filteredList.filter(user => user.id !== userId);
-          this.toastr.success('User deleted successfully:');          
-        },
-        (error) => {
-          this.toastr.error('Error deleting user:', error);
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.userService.deleteUser(userId).subscribe(
+            () => {
+              this.users = this.users.filter(user => user.id !== userId);
+              this.filteredList = this.filteredList.filter(user => user.id !== userId);
+              Swal.fire(
+                'Deleted!',
+                'User has been deleted.',
+                'success'
+              );
+            },
+            (error) => {
+              Swal.fire(
+                'Error!',
+                'Failed to delete user: ' + error,
+                'error'
+              );
+            }
+          );
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire(
+            'Cancelled',
+            'User deletion has been cancelled',
+            'error'
+          );
         }
-      );
+      });
     } else {
       console.error('Invalid user ID:', userId);
     }    
