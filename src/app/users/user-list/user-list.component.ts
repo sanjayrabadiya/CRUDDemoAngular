@@ -114,20 +114,17 @@ export class UserListComponent implements OnInit {
   // change Language code
   onLanguageChange(user: any) {
     if (user.language === 'Other') {
-      this.openAddLanguageModal(user);
+      const modalRef = this.modalService.open(SelectLanguageComponent, { centered: true });  
+      modalRef.result.then((newLanguage: string) => {
+        if (newLanguage && !this.languageList.includes(newLanguage)) {
+          this.languageList.push(newLanguage);
+          user.language = newLanguage;
+        }
+      }).catch((reason) => {
+        console.log('Modal dismissed with reason:', reason);
+      });
     }
   }
-  openAddLanguageModal(user: any) {
-    const modalRef = this.modalService.open(SelectLanguageComponent, { centered: true });  
-    modalRef.result.then((newLanguage: string) => {
-      if (newLanguage && !this.languageList.includes(newLanguage)) {
-        this.languageList.push(newLanguage);
-        user.language = newLanguage;
-      }
-    }).catch((reason) => {
-      console.log('Modal dismissed with reason:', reason);
-    });
-  }  
   // User Delete Code
   deleteUser(userId: number | undefined) {
     if (userId !== undefined) {
@@ -227,7 +224,6 @@ export class UserListComponent implements OnInit {
       language: user.language,
       address: user.address,
     };  
-
     this.userService.updateUser(user.id, updatedUser).subscribe(
       (response) => {
         this.toastr.success('User updated successfully');
@@ -272,35 +268,11 @@ export class UserListComponent implements OnInit {
   } 
   // Add row in table
   addRow() {
-    if (this.users && this.users.length > 0) {
-      const lastUserId = this.users[this.users.length - 1].id;
-      const newId = lastUserId ? lastUserId + 1 : 1;
-      this.newUser = {
-        avatar: {
-          imageUrl: '',
-          fileName: '',
-          size: 0
-        },
-        id: newId,
-        name: '',
-        userName: '',
-        email: '',
-        phoneNo: '',
-        gender: '',
-        birthDate: '',
-        age: 0,
-        language: '',
-        address: ''
-        
-      };
-    } else {
-      this.newUser = {
-      avatar: {
-        imageUrl: '',
-        fileName: '',
-        size: 0
-      },
-      id: 1,
+    const lastUserId = this.users.length > 0 ? this.users[this.users.length - 1].id : 0;
+    const newId = (lastUserId ?? 0) + 1;
+    this.newUser = {
+      avatar: { imageUrl: '', fileName: '', size: 0 },
+      id: newId,
       name: '',
       userName: '',
       email: '',
@@ -309,9 +281,8 @@ export class UserListComponent implements OnInit {
       birthDate: '',
       age: 0,
       language: '',
-      address: ''      
-      };
-    }
+      address: ''
+    };
     this.isNewUserAdded = true;
   }
   // Save new User row in table
