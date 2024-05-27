@@ -10,21 +10,21 @@ import { environment } from '../../environments/environment';
 export class UserService {
   private environmentUrl = environment.apiUrl;
   
-  private apiUrl = this.environmentUrl + 'users';
+  private UserApiUrl = this.environmentUrl + 'users';
 
   constructor(private http: HttpClient) { 
   }
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+    return this.http.get<User[]>(this.UserApiUrl);
   }
 
   getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
+    return this.http.get<User>(`${this.UserApiUrl}/${id}`);
   }
 
   createUser(user: User): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+    return this.http.post<User>(this.UserApiUrl, user);
   }
 
   // updateUser(user: User): Observable<User> {
@@ -32,12 +32,12 @@ export class UserService {
   // }
 
   updateUser(userId: number, userData: any): Observable<any> {
-    const url = `${this.apiUrl}/${userId}`;
+    const url = `${this.UserApiUrl}/${userId}`;
     return this.http.put(url, userData); 
   }
 
   deleteUser(id: number): Observable<User> {
-    return this.http.delete<User>(`${this.apiUrl}/${id}`);
+    return this.http.delete<User>(`${this.UserApiUrl}/${id}`);
   }
 
 }
