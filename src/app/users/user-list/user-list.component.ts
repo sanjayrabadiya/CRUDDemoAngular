@@ -201,6 +201,7 @@ export class UserListComponent implements OnInit {
       language: user.language,
       address: user.address,
     };  
+
     this.userService.updateUser(user.id, updatedUser).subscribe(
       (response) => {
         this.toastr.success('User updated successfully');
