@@ -100,7 +100,7 @@
             </div>
           </td>
           <td>
-            <span *ngIf="!user.checkEdit">{{ user.birthDate }}</span>
+            <span *ngIf="!user.checkEdit">{{ user.birthDate | date:'mediumDate'}}</span>
             <input type="date" class="form-control" formControlName="birthDate" style="width:200px" *ngIf="user.checkEdit" [(ngModel)]="user.birthDate" (change)="calculateAge(user)" />                     
           </td>
           <td>
