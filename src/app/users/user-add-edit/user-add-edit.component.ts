@@ -47,6 +47,7 @@ export class UserAddEditComponent implements OnInit {
       age:[''],
       language:[this.languageList[0]],
       address:['', Validators.required],
+      active: [true] 
     });
     // Subscribe to form value changes
     this.userForm.valueChanges.subscribe(() => {

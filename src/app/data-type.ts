@@ -11,7 +11,8 @@ export interface User {
   language?: string;
   phoneNo?: string;
   address?: string;
-  checkEdit?: boolean;  
+  checkEdit?: boolean;
+  active?:boolean;
 }
 export interface Avatar {
   imageUrl: string;

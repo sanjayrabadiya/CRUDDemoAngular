@@ -36,8 +36,13 @@ export class UserService {
     return this.http.put(url, userData); 
   }
 
+  // deleteUser(id: number): Observable<User> {
+  //   return this.http.delete<User>(`${this.UserApiUrl}/${id}`);
+  // }
+
   deleteUser(id: number): Observable<User> {
-    return this.http.delete<User>(`${this.UserApiUrl}/${id}`);
+    const updatedUser = { id, active: false };
+    return this.http.patch<User>(`${this.UserApiUrl}/${id}`, updatedUser );
   }
 
 }

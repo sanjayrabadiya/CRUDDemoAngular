@@ -6,7 +6,7 @@ import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
-import Swal from 'sweetalert2';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
@@ -18,6 +18,7 @@ export class UserListComponent implements OnInit {
   itemsPerPage: number = 15;
   userForm: FormGroup;
   users: User[] = [];
+  inactiveUsers: User[] = [];
   imageURL: string | ArrayBuffer | null = null;  
   fileName: string = "";
   size:number = 0;
@@ -40,7 +41,8 @@ export class UserListComponent implements OnInit {
     birthDate: '',
     age: 0,
     language: '',
-    address: ''
+    address: '',
+    active: true,
    
   };
   isNewUserAdded = false;
@@ -67,17 +69,18 @@ export class UserListComponent implements OnInit {
       age:[''],
       language:[this.languageList[0]],
       address:['', Validators.required],
-      
-    });
+      active: [true]      
+    });    
   }
   ngOnInit() {   
     this.loadUsers();
+    this.getInactiveUsers();
   } 
   // get user list code 
   loadUsers() {
     this.userService.getUsers().subscribe(
       (users: User[]) => {
-        this.users = users; 
+        this.users = users.filter(user => user.active === true); 
         this.filteredList = [...this.users];               
       },
       (error) => {
@@ -85,6 +88,18 @@ export class UserListComponent implements OnInit {
       }
     );
   }
+
+  getInactiveUsers() {
+    this.userService.getUsers().subscribe(
+      (users: User[]) => {
+        this.inactiveUsers = users.filter(user => !user.active);
+      },
+      (error) => {
+        this.toastr.error('Failed to load inactive users:', error);
+      }
+    );
+  }
+  
   // Sorting code
   sort(property: string) {
     if (this.sortBy === property) {
@@ -127,46 +142,46 @@ export class UserListComponent implements OnInit {
   }
   // User Delete Code
   deleteUser(userId: number | undefined) {
-    if (userId !== undefined) {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'You won\'t be able to revert this!',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'No, keep it'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.userService.deleteUser(userId).subscribe(
-            () => {
-              this.users = this.users.filter(user => user.id !== userId);
-              this.filteredList = this.filteredList.filter(user => user.id !== userId);
-              Swal.fire(
-                'Deleted!',
-                'User has been deleted.',
-                'success'
-              );
-            },
-            (error) => {
-              Swal.fire(
-                'Error!',
-                'Failed to delete user: ' + error,
-                'error'
-              );
-            }
-          );
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
-          Swal.fire(
-            'Cancelled',
-            'User deletion has been cancelled',
-            'error'
-          );
+    if (userId !== undefined) {       
+      this.userService.deleteUser(userId).subscribe(
+        () => {
+          this.users = this.users.filter(user => user.id !== userId);
+          this.filteredList = this.filteredList.filter(user => user.id !== userId); 
+          this.toastr.success(`User has been deactivated successfully.`);
         }
-      });
+      );        
     } else {
       console.error('Invalid user ID:', userId);
-    }    
+    } 
+    this.loadUsers();  
+    this.getInactiveUsers(); 
   }
+  // active user Code
+  activeUser(userId: number | undefined) {
+    if (userId !== undefined) {
+      const userToUpdate = this.inactiveUsers.find(user => user.id === userId);      
+      if (userToUpdate) {
+        userToUpdate.active = !userToUpdate.active;  
+        this.userService.updateUser(userId, userToUpdate).subscribe(
+          () => {
+            const statusMessage = userToUpdate.active ? 'activated' : 'deactivated';
+            this.toastr.success(`User has been ${statusMessage} successfully.`);
+            forkJoin([this.loadUsers(), this.getInactiveUsers()]).subscribe();
+          },
+          (error) => {
+            this.toastr.error('Failed to update user status:', error);
+          }
+        );
+      } else {
+        this.toastr.error('User not found.');
+      }
+    } else {
+      console.error('Invalid user ID:', userId);
+    }
+    this.loadUsers();  
+    this.getInactiveUsers(); 
+  }
+
   // Image Convert to base64Image  
   AddavatarImage(event: any, user: any) {    
     const file: File = event.target.files[0];  
@@ -208,7 +223,8 @@ export class UserListComponent implements OnInit {
     user.editBirthDate = user.birthDate,
     user.editAge = this.calculateAge(user.birthDate);
     user.editLanguage = user.language;
-    user.editAddress = user.address;        
+    user.editAddress = user.address;  
+    user.editactive = user.active;    
   }
   // User Edit to save Code
   saveEdit(user: any) {    
@@ -223,6 +239,7 @@ export class UserListComponent implements OnInit {
       age: this.calculateAge(user.birthDate),
       language: user.language,
       address: user.address,
+      active: user.active,
     };  
     this.userService.updateUser(user.id, updatedUser).subscribe(
       (response) => {
@@ -281,12 +298,14 @@ export class UserListComponent implements OnInit {
       birthDate: '',
       age: 0,
       language: '',
-      address: ''
+      address: '',
+      active: true
     };
     this.isNewUserAdded = true;
   }
   // Save new User row in table
   saveNewUser() {
+    debugger;
     this.updateUserAge();
     if (!this.newUser.name || !this.newUser.userName || !this.newUser.email || !this.newUser.phoneNo || !this.newUser.address || !this.newUser.language || !this.newUser.birthDate || !this.newUser.gender) {
       this.toastr.error('Please fill in all required fields.');
@@ -305,6 +324,8 @@ export class UserListComponent implements OnInit {
       }
     );
   }
+
+
   // table row then data not change
   cancelAdd() {
     this.isNewUserAdded = false;
