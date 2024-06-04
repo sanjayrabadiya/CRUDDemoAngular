@@ -16,16 +16,15 @@ export class UserAddEditComponent implements OnInit {
   userForm: FormGroup;
   userId: number | null = null;
   user: User = {};
-  imageURL: string | ArrayBuffer | null = null; 
-  fileName: string = "";
-  size:number = 0;
+  // imageURL: string | ArrayBuffer | null = null; 
+  // fileName: string = "";
+  // size:number = 0;
   languageList: string[] = ['English','Gujarati','Marathi'];  
   isEditMode = false;
   isFormChanged = false;
 
   constructor(
     private fb: FormBuilder, 
-    private routerLink: Router, 
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
@@ -88,9 +87,10 @@ export class UserAddEditComponent implements OnInit {
 
   saveUser(): void {
     if (this.userForm.valid && this.userId !== null) {
-      const updatedUserData = this.userForm.value; 
-      const age = this.calculateAge(updatedUserData.birthDate);
-      updatedUserData.age = age;     
+      const updatedUserData = { ...this.userForm.value, age: this.calculateAge(this.userForm.value.birthDate) };
+      // const updatedUserData = this.userForm.value; 
+      // const age = this.calculateAge(updatedUserData.birthDate);
+      // updatedUserData.age = age;     
       this.userService.updateUser(this.userId, updatedUserData).subscribe(
         (response) => {
           this.toastr.success('User updated successfully');
@@ -106,7 +106,7 @@ export class UserAddEditComponent implements OnInit {
     }
   }
   cancelUser(){
-    this.routerLink.navigate(['users']);
+    this.router.navigate(['users']);
   }
   // Image Convert to base64Image  
   addAvatarImage(event: any): void {
@@ -161,12 +161,7 @@ export class UserAddEditComponent implements OnInit {
       age--;
     }  
     return age;
-  }
-  updateUserAge() {
-    if (this.user.birthDate) {
-      this.user.age = this.calculateAge(this.user.birthDate);
-    }
-  } 
+  }  
   // change Language code
   onLanguageChange() {
     const languageControl = this.userForm.get('language');

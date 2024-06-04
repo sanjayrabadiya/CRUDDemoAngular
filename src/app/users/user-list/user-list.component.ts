@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { UserService } from '../../services/user.service';
 import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
-import { ModalDismissReasons, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
 import { forkJoin } from 'rxjs';
 
@@ -17,7 +17,6 @@ import { forkJoin } from 'rxjs';
 })
 export class UserListComponent implements OnInit {
   closeResult = '';
-
   page: number = 1;
   itemsPerPage: number = 15;
   userForm: FormGroup;
@@ -27,10 +26,8 @@ export class UserListComponent implements OnInit {
   fileName: string = "";
   size:number = 0;
   languageList: string[] = ['English','Gujarati','Marathi']; 
-
   sortBy: string = 'id'; 
-  sortDirection: number = 1; 
-  
+  sortDirection: number = 1;   
   newUser: User = {
     avatar: {
       imageUrl: '',
@@ -47,8 +44,7 @@ export class UserListComponent implements OnInit {
     age: 0,
     language: '',
     address: '',
-    active: true,
-   
+    active: true,   
   };
   isNewUserAdded = false;
   filteredList: User[] = [];
@@ -57,8 +53,7 @@ export class UserListComponent implements OnInit {
     private userService: UserService, 
     private router: Router,
     private toastr: ToastrService,
-    private modalService: NgbModal,
-    
+    private modalService: NgbModal,    
   ) {
     this.userForm = this.fb.group({    
       avatar: this.fb.group({
@@ -120,17 +115,21 @@ export class UserListComponent implements OnInit {
       this.filteredList = this.users;
       return;
     }  
-    this.filteredList = this.users.filter( 
-      user => 
-        user?.name?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.userName?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.email?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.phoneNo?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.gender?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.birthDate?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.language?.toLowerCase().includes(text.toLowerCase()) ||
-        user?.address?.toLowerCase().includes(text.toLowerCase())
+    this.filteredList = this.users.filter(user =>
+      ['name', 'userName', 'email', 'phoneNo', 'gender', 'birthDate', 'language', 'address']
+        .some(prop => user[prop]?.toLowerCase().includes(text.toLowerCase()))
     );
+    // this.filteredList = this.users.filter( 
+    //   user => 
+    //     user?.name?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.userName?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.email?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.phoneNo?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.gender?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.birthDate?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.language?.toLowerCase().includes(text.toLowerCase()) ||
+    //     user?.address?.toLowerCase().includes(text.toLowerCase())
+    // );
   }
   // change Language code
   onLanguageChange(user: any) {
