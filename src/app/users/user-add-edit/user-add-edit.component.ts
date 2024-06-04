@@ -88,7 +88,9 @@ export class UserAddEditComponent implements OnInit {
 
   saveUser(): void {
     if (this.userForm.valid && this.userId !== null) {
-      const updatedUserData = this.userForm.value;
+      const updatedUserData = this.userForm.value; 
+      const age = this.calculateAge(updatedUserData.birthDate);
+      updatedUserData.age = age;     
       this.userService.updateUser(this.userId, updatedUserData).subscribe(
         (response) => {
           this.toastr.success('User updated successfully');
@@ -150,7 +152,7 @@ export class UserAddEditComponent implements OnInit {
     
   }
   /* age calculte */
-  private calculateAge(birthDate: string): number {
+  calculateAge(birthDate: string): number {
     const today = new Date();
     const dob = new Date(birthDate);
     let age = today.getFullYear() - dob.getFullYear();
@@ -160,6 +162,11 @@ export class UserAddEditComponent implements OnInit {
     }  
     return age;
   }
+  updateUserAge() {
+    if (this.user.birthDate) {
+      this.user.age = this.calculateAge(this.user.birthDate);
+    }
+  } 
   // change Language code
   onLanguageChange() {
     const languageControl = this.userForm.get('language');

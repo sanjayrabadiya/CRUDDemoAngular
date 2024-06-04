@@ -1,12 +1,14 @@
-import { Component, OnInit, inject, TemplateRef} from '@angular/core';
+import { Component, OnInit, TemplateRef} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import * as XLSX from 'xlsx';
 import { UserService } from '../../services/user.service';
 import { User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { ModalDismissReasons, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
 import { forkJoin } from 'rxjs';
+
 
 @Component({
   selector: 'app-user-list',
@@ -28,6 +30,7 @@ export class UserListComponent implements OnInit {
 
   sortBy: string = 'id'; 
   sortDirection: number = 1; 
+  
   newUser: User = {
     avatar: {
       imageUrl: '',
@@ -76,23 +79,23 @@ export class UserListComponent implements OnInit {
     });    
   }
   ngOnInit() {   
-    this.loadUsers();
-    this.getInactiveUsers();
+    this.activeUsers();
+    this.inActiveUsers();
   } 
   // get user list code 
-  loadUsers() {
+  activeUsers() {
     this.userService.getUsers().subscribe(
       (users: User[]) => {
         this.users = users.filter(user => user.active === true); 
-        this.filteredList = [...this.users];               
+        this.users.forEach(user => user.checkEdit = false);
+        this.filteredList = [...this.users]; 
       },
       (error) => {
         this.toastr.error('Failed to load users:', error);
       }
     );
   }
-
-  getInactiveUsers() {
+  inActiveUsers() {
     this.userService.getUsers().subscribe(
       (users: User[]) => {
         this.inactiveUsers = users.filter(user => !user.active);
@@ -156,8 +159,8 @@ export class UserListComponent implements OnInit {
     } else {
       console.error('Invalid user ID:', userId);
     } 
-    this.loadUsers();  
-    this.getInactiveUsers(); 
+    this.activeUsers();  
+    this.inActiveUsers(); 
   }
   // active user Code
   activeUser(userId: number | undefined) {
@@ -169,7 +172,7 @@ export class UserListComponent implements OnInit {
           () => {
             const statusMessage = userToUpdate.active ? 'activated' : 'deactivated';
             this.toastr.success(`User has been ${statusMessage} successfully.`);
-            forkJoin([this.loadUsers(), this.getInactiveUsers()]).subscribe();
+            forkJoin([this.activeUsers(), this.inActiveUsers()]).subscribe();
           },
           (error) => {
             this.toastr.error('Failed to update user status:', error);
@@ -181,8 +184,8 @@ export class UserListComponent implements OnInit {
     } else {
       console.error('Invalid user ID:', userId);
     }
-    this.loadUsers();  
-    this.getInactiveUsers(); 
+    this.activeUsers();  
+    this.inActiveUsers(); 
   }
 
   // Image Convert to base64Image  
@@ -211,50 +214,25 @@ export class UserListComponent implements OnInit {
     document.body.removeChild(link);
   }
   // User Edit Code
-  startEdit(user: any) { 
-    user.checkEdit = true;    
-    user.editAvatar = {
-      imageUrl: user.avatar.imageUrl || '../../../assets/images/userdammy.jpg',
-      fileName: user.avatar.fileName || 'default.jpg',
-      size: user.avatar.size || 0
-    }
-    user.editName = user.name; 
-    user.editUserName = user.userName; 
-    user.editEmail = user.email;
-    user.editPhoneNo = user.phoneNo;
-    user.editGender = user.gender,
-    user.editBirthDate = user.birthDate,
-    user.editAge = this.calculateAge(user.birthDate);
-    user.editLanguage = user.language;
-    user.editAddress = user.address;  
-    user.editactive = user.active;    
+  startEdit(user: any) {
+    user.checkEdit = true; 
   }
   // User Edit to save Code
   saveEdit(user: any) {    
-    const updatedUser = {
-      avatar: user.avatar,
-      name: user.name, 
-      userName: user.userName, 
-      email: user.email, 
-      phoneNo: user.phoneNo,
-      gender: user.gender,
-      birthDate: user.birthDate,
-      age: this.calculateAge(user.birthDate),
-      language: user.language,
-      address: user.address,
-      active: user.active,
-    };  
-    this.userService.updateUser(user.id, updatedUser).subscribe(
-      (response) => {
+    user.age = this.calculateAge(user);   
+    this.userService.updateUser(user.id, user).subscribe(
+      (response) => {          
+        this.updateUserAge();    
         this.toastr.success('User updated successfully');
+        this.activeUsers();
         user.checkEdit = false;
-        this.loadUsers();
         this.router.navigate(['/users']);
       },
       (error) => {
         this.toastr.error('Failed to update users:');
       }
     );
+    
   }
   // User Edit to cancel Code
   cancelEdit(user: any) {
@@ -279,7 +257,6 @@ export class UserListComponent implements OnInit {
       this.newUser.age = this.calculateAge(this.newUser.birthDate);
     }
   } 
-
   // change image
   removeAvatar(){
     const emptyAvatar = { imageUrl: '', fileName: '', size: 0 };
@@ -305,44 +282,36 @@ export class UserListComponent implements OnInit {
       active: true
     };
     this.isNewUserAdded = true;
+    // Call calculateAge to calculate age based on birthDate
+    
   }
   // Save new User row in table
   saveNewUser() {
-    debugger;
-    this.updateUserAge();
     if (!this.newUser.name || !this.newUser.userName || !this.newUser.email || !this.newUser.phoneNo || !this.newUser.address || !this.newUser.language || !this.newUser.birthDate || !this.newUser.gender) {
       this.toastr.error('Please fill in all required fields.');
       return;
     }
+    // Calculate age
+    this.newUser.age = this.calculateAge(this.newUser);
     this.userService.createUser(this.newUser).subscribe(
       (response) => {
         this.updateUserAge();
         this.toastr.success('New user added successfully');
         this.isNewUserAdded = false;
         this.newUser = {};
-        this.loadUsers();
+        this.activeUsers();
       },
       (error) => {
         this.toastr.error('Failed to add new user:', error);
       }
     );
   }
-
-
   // table row then data not change
   cancelAdd() {
     this.isNewUserAdded = false;
     this.newUser = {};
   }
-  // Edit user in other page with route 
-  editUser(userId: number) {    
-    this.router.navigate(['/users/edit', userId]);
-  }
-  // Add user in other page with route 
-  addUser(){
-    this.router.navigate(['users/add'],{ queryParams: { mode: 'add' } });
-  }   
-
+  // deactive List Modal code
   open(content: TemplateRef<any>) {
 		this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title',fullscreen: true }).result.then(
 			(result) => {
@@ -352,8 +321,8 @@ export class UserListComponent implements OnInit {
 				this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
 			},
 		);
-	}
-  private getDismissReason(reason: any): string {
+	}  
+  getDismissReason(reason: any): string {
 		switch (reason) {
 			case ModalDismissReasons.ESC:
 				return 'by pressing ESC';
@@ -363,4 +332,40 @@ export class UserListComponent implements OnInit {
 				return `with: ${reason}`;
 		}
 	}
+  // Excel Download code
+  excelDownload(): void {
+    this.userService.getUsers().subscribe(users => {
+      const data: any[] = users.map(user => {
+        return {          
+          fileName: user?.avatar?.fileName,
+          size: user?.avatar?.size, 
+          Name: user.name,
+          UserName: user.userName, 
+          Email: user.email,
+          Phone: user.phoneNo,
+          gender: user.gender,
+          birthDate: user.birthDate,
+          age: user.age,
+          language: user.language,
+          address: user.address,
+          active: user.active,
+        };
+      });
+
+      const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+      const wb: XLSX.WorkBook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Users');
+
+      // Save the Excel file
+      XLSX.writeFile(wb, 'users.xlsx');
+    });
+  }
+  // Add & Edit user in other page with route 
+  editUser(userId: number) {    
+    this.router.navigate(['/users/edit', userId]);
+  }
+  addUser(){
+    this.router.navigate(['users/add'],{ queryParams: { mode: 'add' } });
+  }   
+  
 }
