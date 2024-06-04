@@ -13,7 +13,6 @@ export interface User {
   address?: string;
   checkEdit?: boolean;
   active?:boolean;
-  [key: string]: any; // use for filterResults in filteredList
 }
 export interface Avatar {
   imageUrl: string;

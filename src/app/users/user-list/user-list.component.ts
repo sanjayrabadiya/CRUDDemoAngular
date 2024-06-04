@@ -115,21 +115,11 @@ export class UserListComponent implements OnInit {
       this.filteredList = this.users;
       return;
     }  
-    this.filteredList = this.users.filter(user =>
-      ['name', 'userName', 'email', 'phoneNo', 'gender', 'birthDate', 'language', 'address']
-        .some(prop => user[prop]?.toLowerCase().includes(text.toLowerCase()))
-    );
-    // this.filteredList = this.users.filter( 
-    //   user => 
-    //     user?.name?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.userName?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.email?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.phoneNo?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.gender?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.birthDate?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.language?.toLowerCase().includes(text.toLowerCase()) ||
-    //     user?.address?.toLowerCase().includes(text.toLowerCase())
-    // );
+    this.filteredList = this.users.filter(user => {
+      const { name, userName, email, phoneNo, gender, birthDate, language, address } = user || {};
+      return [name, userName, email, phoneNo, gender, birthDate, language, address]
+        .some(prop => prop?.toLowerCase().includes(text.toLowerCase()));
+    });    
   }
   // change Language code
   onLanguageChange(user: any) {
