@@ -12,6 +12,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { SelectLanguageComponent } from './language/select-language.component';
 import { OrderByPipe } from './order-by.pipe';
+import { DisableFutureDatesDirective } from './directive/disable-future-dates.directive';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { OrderByPipe } from './order-by.pipe';
     UserListComponent,
     UserAddEditComponent,
     SelectLanguageComponent,
-    OrderByPipe
+    OrderByPipe,
+    DisableFutureDatesDirective
   ],
   imports: [
     BrowserModule,
