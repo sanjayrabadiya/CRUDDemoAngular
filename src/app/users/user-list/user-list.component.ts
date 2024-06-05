@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as XLSX from 'xlsx';
 import { UserService } from '../../services/user.service';
-import { User } from '../../data-type';
+import { LanguageService } from '../../services/language.service';
+import { Language, User } from '../../data-type';
 import { ToastrService } from 'ngx-toastr';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectLanguageComponent } from 'src/app/language/select-language.component';
@@ -25,7 +26,7 @@ export class UserListComponent implements OnInit {
   imageURL: string | ArrayBuffer | null = null;  
   fileName: string = "";
   size:number = 0;
-  languageList: string[] = ['English','Gujarati','Marathi']; 
+  languageList: Language[] = [];   
   sortBy: string = 'id'; 
   sortDirection: number = 1;   
   newUser: User = {
@@ -51,6 +52,7 @@ export class UserListComponent implements OnInit {
   constructor(
     private fb: FormBuilder, 
     private userService: UserService, 
+    private languageService: LanguageService,
     private router: Router,
     private toastr: ToastrService,
     private modalService: NgbModal,    
@@ -71,11 +73,12 @@ export class UserListComponent implements OnInit {
       language:[this.languageList[0]],
       address:['', Validators.required],
       active: [true]      
-    });    
+    }); 
   }
   ngOnInit() {   
     this.activeUsers();
     this.inActiveUsers();
+    this.getLanguages(); 
   } 
   // get user list code 
   activeUsers() {
@@ -97,6 +100,17 @@ export class UserListComponent implements OnInit {
       },
       (error) => {
         this.toastr.error('Failed to load inactive users:', error);
+      }
+    );
+  }
+
+  getLanguages() {
+    this.languageService.getLanguages().subscribe(
+      (languages: Language[]) => {
+        this.languageList = languages;
+      },
+      (error) => {
+        console.error('Failed to fetch languages:', error);
       }
     );
   }
@@ -122,17 +136,16 @@ export class UserListComponent implements OnInit {
     });    
   }
   // change Language code
-  onLanguageChange(user: any) {
+  onLanguageChange(user: any) {  
+    console.log('user.language:', user.language); // Check user.language  
     if (user.language === 'Other') {
+      console.log('Opening modal...');
       const modalRef = this.modalService.open(SelectLanguageComponent, { centered: true });  
-      modalRef.result.then((newLanguage: string) => {
-        if (newLanguage && !this.languageList.includes(newLanguage)) {
-          this.languageList.push(newLanguage);
-          user.language = newLanguage;
-        }
+      modalRef.result.then(() => {           
       }).catch((reason) => {
-        console.log('Modal dismissed with reason:', reason);
-      });
+          console.log('Modal dismissed with reason:', reason);
+      });      
+      this.getLanguages(); 
     }
   }
   // User Delete Code
@@ -208,9 +221,9 @@ export class UserListComponent implements OnInit {
   }
   // User Edit to save Code
   saveEdit(user: any) {    
-    user.age = this.calculateAge(user);   
+    user.age = this.calculateAge(user);        
     this.userService.updateUser(user.id, user).subscribe(
-      (response) => {          
+      (response) => {  
         this.updateUserAge();    
         this.toastr.success('User updated successfully');
         this.activeUsers();

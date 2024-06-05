@@ -111,7 +111,7 @@
           <td>
             <span *ngIf="!user.checkEdit">{{ user.language }}</span>  
             <select id="language" class="form-control" formControlName="language" style="width:200px" *ngIf="user.checkEdit" [(ngModel)]="user.language" (change)="onLanguageChange(user)">
-              <option *ngFor="let language of languageList" [value]="language">{{ language }}</option>
+              <option *ngFor="let language of languageList" [value]="language.name">{{ language.name }}</option>
               <option value="Other">Other</option>
             </select>  
           </td>
@@ -179,7 +179,7 @@
           <td>
             <select id="language" class="form-control" formControlName="language" style="width:200px" [(ngModel)]="newUser.language" (change)="onLanguageChange(newUser)">
               <option value="" selected disabled hidden>Select Language</option>
-              <option *ngFor="let language of languageList" [value]="language">{{ language }}</option>
+              <option *ngFor="let language of languageList" [value]="language.name">{{ language.name }}</option>
               <option value="Other">Other</option>
             </select>
           </td>

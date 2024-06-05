@@ -1,13 +1,15 @@
 <div class="modal-header d-flex align-items-center justify-content-between">
   <h4 class="modal-title">Add New Language</h4>
-  <button type="button" class="btn btn-danger" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+  <button type="button" class="btn btn-danger" aria-label="Close" (click)="close()">
     <span aria-hidden="true">Close</span>
   </button>
 </div>
 <div class="modal-body">
-  <input type="text" class="form-control" #newLanguageInput placeholder="Enter new language...">
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="addLanguage()">Add</button>
-  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss('Cancel click')">Cancel</button>
+  <form [formGroup]="languageForm">
+    <input type="text" class="form-control" formControlName="name" placeholder="Enter new language...">    
+    <div class="modal-footer">
+      <button type="submit" class="btn btn-primary" (click)="addLanguage()">Add</button>
+      <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+    </div>
+  </form>
 </div>

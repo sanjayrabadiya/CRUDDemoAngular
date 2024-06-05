@@ -19,3 +19,8 @@ export interface Avatar {
   fileName: string;
   size: number;
 }
+
+export interface Language { 
+  id?:number,
+  name?:string
+}
