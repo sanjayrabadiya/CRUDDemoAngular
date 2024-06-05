@@ -265,10 +265,10 @@ export class UserListComponent implements OnInit {
   } 
   // Add row in table
   addRow() {
+    
     const lastUserId = this.users.length > 0 ? this.users[this.users.length - 1].id : 0;
-    const inactiveUserCount = this.inactiveUsers.length;    
-    //const newId = (lastUserId ?? 0) + 1;
-    const newId = (lastUserId?? 0) + inactiveUserCount + 1;
+    const inactiveUserCount = this.inactiveUsers.length;
+    const newId = (lastUserId ?? 0) + 1 +  inactiveUserCount;
     this.newUser = {
       avatar: { imageUrl: '', fileName: '', size: 0 },
       id: newId,
