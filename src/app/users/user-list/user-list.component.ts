@@ -137,9 +137,7 @@ export class UserListComponent implements OnInit {
   }
   // change Language code
   onLanguageChange(user: any) {  
-    console.log('user.language:', user.language); // Check user.language  
     if (user.language === 'Other') {
-      console.log('Opening modal...');
       const modalRef = this.modalService.open(SelectLanguageComponent, { centered: true });  
       modalRef.result.then(() => {           
       }).catch((reason) => {
